@@ -1,6 +1,7 @@
 import { Server } from "./Server";
 import { Socket } from "socket.io";
 import { RTCPeerConnection, RTCDataChannel, RTCSessionDescription } from 'wrtc';
+import * as sdpTransform from 'sdp-transform';
 
 // TODO: Restrict available ports
 
@@ -17,13 +18,13 @@ export class Connection {
 		this._socket.on("answer", this._onAnswer.bind(this));
 
 		// Create peer
-		this.peer = new RTCPeerConnection({
-			'iceServers': [{'urls': 'stun:stun.l.google.com:19302'}]
-		}) as RTCPeerConnection;
-		this.peer.addEventListener('icecandidate', async ev => {
+		this.peer = new RTCPeerConnection() as RTCPeerConnection;
+		this.peer.addEventListener('icecandidate', ev => {
 			if (ev.candidate) {
 				console.log('New ICE candidate', ev.candidate);
 				this._socket.emit('new-ice-candidate', ev.candidate);
+			} else {
+				console.log("No available ICE candidates");
 			}
 		});
 		this.peer.addEventListener('connectionstatechange', ev => {
@@ -33,16 +34,8 @@ export class Connection {
 			}
 		});
 
-		// Send offer
-		this.peer.createOffer()
-			.then(offer => {
-				console.log("Created offer", offer);
-				this.peer.setLocalDescription(offer);
-				this._socket.emit('offer', offer);
-			});
-
 		// Create data channel
-		this.dc = this.peer.createDataChannel();
+		this.dc = this.peer.createDataChannel('ping-pong');
 		this.dc.addEventListener('open', ev => {
 			console.log('DataChannel open');
 		});
@@ -52,6 +45,14 @@ export class Connection {
 		this.dc.addEventListener('message', ev => {
 			console.log('Message', ev.data);
 		});
+
+		// Send offer
+		this.peer.createOffer()
+			.then(async offer => {
+				console.log("Created offer", sdpTransform.parse(offer.sdp));
+				await this.peer.setLocalDescription(offer);
+				this._socket.emit('offer', offer);
+			});
 	}
 
 	private _onDisconnect() {
@@ -64,9 +65,9 @@ export class Connection {
 	}
 
 	private async _onAnswer(answer: any) {
-		console.log("Received answer", answer);
+		console.log("Received answer", sdpTransform.parse(answer.sdp));
 
-		this.peer.setRemoteDescription(new RTCSessionDescription(answer));
+		await this.peer.setRemoteDescription(new RTCSessionDescription(answer));
 	}
 }
 

@@ -33,7 +33,6 @@ module.exports = {
         static: path.join(__dirname,  "dist"),
         host: "0.0.0.0",
         port: 8080,
-        open: true,
     },
     watchOptions: {
         // File watching doesn't always work on Windows, so we fall back to polling
