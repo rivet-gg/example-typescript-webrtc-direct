@@ -2,17 +2,15 @@
 
 [matchmaker]
 	[matchmaker.game_modes.default]
-		tier = "basic-1d1"
-		max_players = 16
+		tier = "basic-1d2"
+		max_players = 32
 
 		[matchmaker.game_modes.default.docker]
 			args = []
 
 			[matchmaker.game_modes.default.docker.env]
-				PORT = "80"
 
 			[matchmaker.game_modes.default.docker.ports]
-				default = { proto = "https", target = 80 }
-
-[kv]
+				signaling = { proto = "https", target = 80 }
+				webrtc = { proto = "udp", range = { min = 26000, max = 31999 } }
 
