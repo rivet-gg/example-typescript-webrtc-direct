@@ -35,7 +35,7 @@ export class Connection {
 		});
 
 		// Create data channel
-		this.dc = this.peer.createDataChannel('ping-pong');
+		this.dc = this.peer.createDataChannel('echo');
 		this.dc.addEventListener('open', ev => {
 			console.log('DataChannel open');
 		});
