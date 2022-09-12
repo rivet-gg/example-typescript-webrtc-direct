@@ -3,7 +3,8 @@ import { Socket } from "socket.io";
 import { RTCPeerConnection, RTCDataChannel, RTCSessionDescription } from 'wrtc';
 import * as sdpTransform from 'sdp-transform';
 
-// TODO: Restrict available ports
+const WEBRTC_PORT_MIN = parseInt(process.env.PORT_RANGE_MIN_webrtc) || 26000;
+const WEBRTC_PORT_MAX = parseInt(process.env.PORT_RANGE_MAX_webrtc) || 27000;
 
 export class Connection {
 	private name: string;
@@ -18,7 +19,12 @@ export class Connection {
 		this._socket.on("answer", this._onAnswer.bind(this));
 
 		// Create peer
-		this.peer = new RTCPeerConnection() as RTCPeerConnection;
+		this.peer = new RTCPeerConnection({
+			  portRange: {
+				  min: WEBRTC_PORT_MIN,
+				  max: WEBRTC_PORT_MAX,
+			  }
+		 });
 		this.peer.addEventListener('icecandidate', ev => {
 			if (ev.candidate) {
 				console.log('New ICE candidate', ev.candidate);
