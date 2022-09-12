@@ -1,0 +1,32 @@
+{
+	"name": "example-typescript-webrtc",
+	"version": "1.0.0",
+	"description": "",
+	"main": "webpack.config.js",
+	"scripts": {
+		"start": "concurrently --kill-others \"npm:start:server\" \"npm:watch:client\"",
+		"start:server": "kill-port -s 5000 && ts-node -r dotenv/config server/index.ts",
+		"watch": "npm install && concurrently --kill-others \"npm:watch:server\" \"npm:watch:client\"",
+		"watch:server": "kill-port -s 5000 && nodemon -r dotenv/config --delay 1 --watch server --watch shared --ext ts --exec ts-node server/index.ts",
+		"watch:client": "kill-port -s 8080 && webpack serve --no-stats",
+		"build:client": "webpack",
+		"build:server": "tsc --project tsconfig.json",
+		"format": "prettier --write client/ server/ shared/",
+		"lint": "eslint client/ server/ shared/",
+		"lint:fix": "eslint --fix client/ server/ shared/"
+	},
+	"author": "",
+	"license": "ISC",
+	"devDependencies": {
+		"dotenv": "^16.0.2",
+		"kill-port": "^2.0.1",
+		"ts-node": "^10.9.1",
+		"webpack": "^5.74.0",
+		"webpack-cli": "^4.10.0"
+	},
+	"dependencies": {
+		"node-datachannel": "^0.3.6",
+		"simple-peer": "^9.11.1",
+		"socket.io": "^4.5.2"
+	}
+}
