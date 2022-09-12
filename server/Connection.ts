@@ -1,6 +1,6 @@
 import { Server } from "./Server";
 import { Socket } from "socket.io";
-import { PeerConnection, DataChannel, initLogger } from 'node-datachannel';
+import { RTCPeerConnection } from 'wrtc';
 
 initLogger("Debug");
 

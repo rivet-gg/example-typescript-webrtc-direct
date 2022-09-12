@@ -1,4 +1,6 @@
+import Client from "./Client";
+
 window.addEventListener("load", () => {
-	console.log("hi");
+	new Client();
 });
 
