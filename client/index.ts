@@ -1,6 +1,6 @@
-import Client from "./Client";
+import { Client } from "./Client";
 
 window.addEventListener("load", () => {
-	new Client();
+	new Client("localhost:5000");
 });
 

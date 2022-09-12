@@ -1,64 +1,72 @@
 import { Server } from "./Server";
 import { Socket } from "socket.io";
-import { RTCPeerConnection } from 'wrtc';
-
-initLogger("Debug");
+import { RTCPeerConnection, RTCDataChannel, RTCSessionDescription } from 'wrtc';
 
 // TODO: Restrict available ports
 
 export class Connection {
 	private name: string;
-	private peer: PeerConnection;
-	private dc: DataChannel;
+	private peer: RTCPeerConnection;
+	private dc: RTCDataChannel;
 
 	public constructor(private _server: Server, private _socket: Socket) {
-		this.name = `peer-${Math.floor(Math.random() * 100000)}`;
+		this.name = `peer-${Math.floor(Math.random() * 1000000)}`;
+		console.log("Connection", this.name);
+
+		this._socket.on("new-ice-candidate", this._onNewIceCandidate.bind(this));
+		this._socket.on("answer", this._onAnswer.bind(this));
 
 		// Create peer
-		this.peer = new PeerConnection(this.name, {
-			iceServers: ["stun:stun.l.google.com:19302"],
+		this.peer = new RTCPeerConnection({
+			'iceServers': [{'urls': 'stun:stun.l.google.com:19302'}]
+		}) as RTCPeerConnection;
+		this.peer.addEventListener('icecandidate', async ev => {
+			if (ev.candidate) {
+				console.log('New ICE candidate', ev.candidate);
+				this._socket.emit('new-ice-candidate', ev.candidate);
+			}
 		});
-		this.peer.onLocalDescription((sdp, type) => {
-			console.log("Sending onLocalDescription", sdp, type);
-			this._socket.send("onLocalDescription", sdp, type);
+		this.peer.addEventListener('connectionstatechange', ev => {
+			console.log('New connection state', this.peer.connectionState);
+			if (this.peer.connectionState === 'connected') {
+				console.log("WebRTC connected");
+			}
 		});
-		this.peer.onLocalCandidate((candidate, mid) => {
-			console.log("Sending onLocalCandidate", candidate, mid);
-			this._socket.send("onLocalCandidate", candidate, mid);
-		});
+
+		// Send offer
+		this.peer.createOffer()
+			.then(offer => {
+				console.log("Created offer", offer);
+				this.peer.setLocalDescription(offer);
+				this._socket.emit('offer', offer);
+			});
 
 		// Create data channel
-		this.dc = this.peer.createDataChannel("test");
-		this.dc.onOpen(() => {
-			this.dc.sendMessage("Hello from server");
+		this.dc = this.peer.createDataChannel();
+		this.dc.addEventListener('open', ev => {
+			console.log('DataChannel open');
 		});
-		this.dc.onMessage((msg) => {
-			console.log('Received message:', msg);
+		this.dc.addEventListener('close', ev => {
+			console.log('DataChannel close');
 		});
-	}
-
-	private async _onInit(cb: () => void) {
-		console.log("Player connecting");
-
-		this._socket.on("disconnect", this._onDisconnect.bind(this));
-		this._socket.on("onLocalDescription", this._onLocalDescription.bind(this));
-		this._socket.on("onLocalCandidate", this._onLocalCandidate.bind(this));
-
-		cb();
+		this.dc.addEventListener('message', ev => {
+			console.log('Message', ev.data);
+		});
 	}
 
 	private _onDisconnect() {
-		console.log("disconnected");
+		console.log("WebSocket disconnected");
 	}
 
-	private _onLocalDescription(sdp: any, type: any) {
-		console.log("Received onLocalDescription", sdp, type);
-		this.peer.setRemoteDescription(sdp, type);
+	private _onNewIceCandidate(candidate: any) {
+		console.log("Received candidate", candidate);
+		this.peer.addIceCandidate(candidate);
 	}
 
-	private _onLocalCandidate(candidate: any, mid: any) {
-		console.log("Received onLocalCandidate", candidate, mid);
-		this.peer.addRemoteCandidate(candidate, mid);
+	private async _onAnswer(answer: any) {
+		console.log("Received answer", answer);
+
+		this.peer.setRemoteDescription(new RTCSessionDescription(answer));
 	}
 }
 
