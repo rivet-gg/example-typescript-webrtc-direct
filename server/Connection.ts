@@ -20,7 +20,7 @@ export class Connection {
 		this.peer = new RTCPeerConnection({
 			  portRange: {
 				  min: PORT_WEBRTC_MIN,
-				  max: WEBRTC_PORT_MAX,
+				  max: PORT_WEBRTC_MAX,
 			  }
 		 });
 		this.peer.addEventListener('icecandidate', ev => {
@@ -41,7 +41,6 @@ export class Connection {
 		// Create unreliable data channel for UDP communication
 		this.dc = this.peer.createDataChannel('echo', {
 			ordered: false,
-			maxPacketLifeTime: 0,
 			maxRetransmits: 0,
 		});
 		this.dc.addEventListener('open', ev => {
