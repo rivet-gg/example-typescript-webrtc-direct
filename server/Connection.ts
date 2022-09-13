@@ -2,9 +2,7 @@ import { Server } from "./Server";
 import { Socket } from "socket.io";
 import { RTCPeerConnection, RTCDataChannel, RTCSessionDescription } from 'wrtc';
 import * as sdpTransform from 'sdp-transform';
-
-const WEBRTC_PORT_MIN = parseInt(process.env.PORT_RANGE_MIN_webrtc) || 26000;
-const WEBRTC_PORT_MAX = parseInt(process.env.PORT_RANGE_MAX_webrtc) || 27000;
+import { PORT_WEBRTC_MIN, PORT_WEBRTC_MAX } from "./env";
 
 export class Connection {
 	private name: string;
@@ -21,7 +19,7 @@ export class Connection {
 		// Create peer
 		this.peer = new RTCPeerConnection({
 			  portRange: {
-				  min: WEBRTC_PORT_MIN,
+				  min: PORT_WEBRTC_MIN,
 				  max: WEBRTC_PORT_MAX,
 			  }
 		 });

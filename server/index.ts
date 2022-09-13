@@ -1,8 +1,8 @@
 import { Server } from "./Server";
 import { Server as SocketServer } from "socket.io";
+import { PORT_SIGNALING } from "./env";
 
-const port = parseInt(process.env.PORT) || 5000;
-const socketServer = new SocketServer(port, {
+const socketServer = new SocketServer(PORT_SIGNALING, {
 	cors: {
 		origin: "*",
 	},
