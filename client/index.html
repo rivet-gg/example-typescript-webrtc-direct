@@ -34,17 +34,25 @@
 
 				text-align: center;
 			}
+
+			.codeblock {
+				font-family: monospace;
+			}
 		</style>
 	</head>
 	<body>
 		<div id="info">
 			<div>
-				<p>The gray circle reflects the cursor position echoed from the server over a RTCDataChannel.</p>
-				<p>WebSocket.connected: <span id="ws-connected"></span></p>
-				<p>RTCPeerConnection.connectionState: <span id="peer-connection-state"></span></p>
-				<p>RTCPeerConnection.iceConnectionState: <span id="ice-connection-state"></span></p>
-				<p>RTCPeerConnection.iceGatheringState: <span id="ice-gathering-state"></span></p>
-				<p>RTCDataChannel.readyState: <span id="dc-ready-state"></span></p>
+				<h1>WebRTC Direct DataChannel Demo</h1>
+				<p>The gray circle reflects the cursor position echoed from the server over an RTCDataChannel.</p>
+				<div class="codeblock">
+					<div>WebSocket.connected: <span class="status" id="ws-connected"></span></div>
+					<div>RTCPeerConnection.connectionState: <span id="peer-connection-state"></span></div>
+					<div>RTCPeerConnection.iceConnectionState: <span id="ice-connection-state"></span></div>
+					<div>RTCPeerConnection.iceGatheringState: <span id="ice-gathering-state"></span></div>
+					<div>RTCDataChannel.readyState: <span id="dc-ready-state"></span></div>
+					<div>Offer SDP:<br/><span id="offer-sdp"></span></div>
+				</div>
 			</div>
 		</div>
 		<div id="canvas">

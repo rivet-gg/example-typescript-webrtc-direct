@@ -107,7 +107,9 @@ export class Client {
 	}
 
 	private async _onOffer(offer: any) {
-		console.log("Received offer", sdpTransform.parse(offer.sdp));
+		let sdp = sdpTransform.parse(offer.sdp);
+		console.log("Received offer", sdp);
+		document.getElementById("offer-sdp").innerText = JSON.stringify(sdp);
 
 		await this.peer.setRemoteDescription(new RTCSessionDescription(offer));
 
