@@ -40,8 +40,12 @@ export class Connection {
 			}
 		});
 
-		// Create data channel
-		this.dc = this.peer.createDataChannel('echo');
+		// Create unreliable data channel for UDP communication
+		this.dc = this.peer.createDataChannel('echo', {
+			ordered: false,
+			maxPacketLifeTime: 0,
+			maxRetransmits: 0,
+		});
 		this.dc.addEventListener('open', ev => {
 			console.log('DataChannel open');
 		});
@@ -50,6 +54,8 @@ export class Connection {
 		});
 		this.dc.addEventListener('message', ev => {
 			console.log('Message', ev.data);
+
+			this.dc.send(ev.data);
 		});
 
 		// Send offer

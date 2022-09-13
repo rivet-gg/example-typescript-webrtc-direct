@@ -11,6 +11,8 @@ export class Client {
 	private peer: RTCPeerConnection;
 	private dc: RTCDataChannel;
 
+	private cursorEl: HTMLDivElement;
+
 	public constructor(public host: string) {
 		this.name = `peer-${Math.floor(Math.random() * 100000)}`;
 
@@ -52,6 +54,27 @@ export class Client {
 			console.log('Received data channel');
 
 			this.dc = ev.channel;
+			this.dc.addEventListener('open', ev => {
+				console.log('DataChannel open');
+			});
+			this.dc.addEventListener('close', ev => {
+				console.log('DataChannel close');
+			});
+			this.dc.addEventListener('message', ev => {
+				console.log('Message', ev.data);
+
+				let { x, y } = JSON.parse(ev.data);
+				this.cursorEl.style.left = `${x}px`;
+				this.cursorEl.style.top = `${y}px`;
+			});
+		});
+
+		// Listen for mouse move events
+		this.cursorEl = document.getElementById("cursor") as HTMLDivElement;
+		document.getElementById("canvas").addEventListener("mousemove", ev => {
+			if (this.dc) {
+				this.dc.send(JSON.stringify({ x: ev.clientX, y: ev.clientY }));
+			}
 		});
 	}
 
