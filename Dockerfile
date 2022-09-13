@@ -1,6 +1,8 @@
 # === Build ===
-FROM node:15-alpine as build
+FROM node:16-alpine as build
 WORKDIR /app
+
+RUN apk add --no-cache python3 make g++ && npm install -g node-pre-gyp
 
 COPY package.json package-lock.json ./
 RUN npm install --only=prod
@@ -16,3 +18,4 @@ COPY --from=build /app /app
 ENV PORT=80
 EXPOSE 80
 CMD node dist/server/index.js
+
