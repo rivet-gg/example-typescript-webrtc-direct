@@ -5,7 +5,7 @@ WORKDIR /app
 RUN apk add --no-cache python3 make g++ && npm install -g node-pre-gyp
 
 COPY package.json package-lock.json ./
-RUN npm install --only=prod
+RUN npm install
 
 COPY . .
 RUN npm run build:server
