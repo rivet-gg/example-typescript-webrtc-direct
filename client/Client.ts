@@ -15,7 +15,9 @@ export class Client {
 	private iceState: HTMLElement;
 	private cursorEl: HTMLDivElement;
 
-	public constructor(public host: string) {
+	public constructor(public host: string, private playerToken: string) {
+		console.log("Connecting", host, playerToken);
+
 		this.name = `peer-${Math.floor(Math.random() * 100000)}`;
 
 		this.socket = io(host);
@@ -23,6 +25,12 @@ export class Client {
 		this.socket.on("disconnect", this._onDisconnect.bind(this));
 		this.socket.on("new-ice-candidate", this._onNewIceCandidate.bind(this));
 		this.socket.on("offer", this._onOffer.bind(this));
+
+		this.socket.emit("init", playerToken, this._onInit.bind(this));
+	}
+
+	async _onInit() {
+		console.log("Initiated");
 
 		// Create peer
 		this.peer = new RTCPeerConnection();

@@ -1,11 +1,19 @@
 import { Server as SocketServer, Socket } from "socket.io";
 import { Connection } from "./Connection";
+import * as mm from "@rivet-gg/matchmaker";
 
 export class Server {
 	public static shared: Server;
 
+	public mmApi: mm.MatchmakerService;
+
 	public constructor(public socketServer: SocketServer) {
 		this.socketServer.on("connection", this._onConnection.bind(this));
+
+		this.mmApi = new mm.MatchmakerService({
+			endpoint: "https://matchmaker.api.rivet-gg.test/v1",
+		});
+		this.mmApi.lobbyReady({});
 	}
 
 	private async _onConnection(socket: Socket) {

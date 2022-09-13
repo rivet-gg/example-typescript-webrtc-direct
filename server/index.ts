@@ -1,3 +1,5 @@
+process.env["NODE_TLS_REJECT_UNAUTHORIZED"] = "0";
+
 import { Server } from "./Server";
 import { Server as SocketServer } from "socket.io";
 import { PORT_SIGNALING } from "./env";

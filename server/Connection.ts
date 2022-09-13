@@ -6,6 +6,7 @@ import { PORT_WEBRTC_MIN, PORT_WEBRTC_MAX } from "./env";
 
 export class Connection {
 	private name: string;
+	private playerToken?: string;
 	private peer: RTCPeerConnection;
 	private dc: RTCDataChannel;
 
@@ -13,6 +14,28 @@ export class Connection {
 		this.name = `peer-${Math.floor(Math.random() * 1000000)}`;
 		console.log("Connection", this.name);
 
+		this._socket.once("init", this._onInit.bind(this));
+	}
+
+	async _onInit(playerToken: string, cb: () => void) {
+		console.log("Received init", playerToken);
+
+		this.playerToken = playerToken;
+
+		// Validate player
+		try {
+			await this._server.mmApi.playerConnected({ playerToken });
+			console.log("Matchmaker player connected");
+		} catch (err) {
+			console.warn("Player failed to connect", err);
+			this._socket.disconnect();
+			return;
+		}
+
+		// Send success
+		cb();
+
+		// Finish setting up socket
 		this._socket.on("new-ice-candidate", this._onNewIceCandidate.bind(this));
 		this._socket.on("answer", this._onAnswer.bind(this));
 
@@ -66,6 +89,8 @@ export class Connection {
 
 	private _onDisconnect() {
 		console.log("WebSocket disconnected");
+		if (this.peer) this.peer.close();
+		if (this.playerToken) this._server.mmApi.playerDisconnected({ playerToken: this.playerToken });
 	}
 
 	private _onNewIceCandidate(candidate: any) {
