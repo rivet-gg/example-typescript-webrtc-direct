@@ -1,7 +1,6 @@
 const webpack = require("webpack");
 const path = require("path");
 const HtmlWebpackPlugin = require("html-webpack-plugin");
-const DotenvWebpackPlugin = require("dotenv-webpack");
 
 module.exports = {
     entry: {
@@ -29,17 +28,11 @@ module.exports = {
         ],
     },
     devtool: "inline-source-map",
-    devServer: {
-        static: path.join(__dirname,  "dist"),
-        host: "0.0.0.0",
-        port: 8080,
-    },
     watchOptions: {
         // File watching doesn't always work on Windows, so we fall back to polling
         poll: 1000,
     },
     plugins: [
-        new DotenvWebpackPlugin(),
         new HtmlWebpackPlugin({
             inject: "head",
             template: path.join(__dirname, "client", "index.html"),
