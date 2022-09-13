@@ -11,11 +11,13 @@ COPY . .
 RUN npm run build:server
 
 # === Run ===
-FROM node:15-alpine
+FROM node:16-alpine
 WORKDIR /app
+
+# See https://dustri.org/b/error-loading-shared-library-ld-linux-x86-64so2-on-alpine-linux.html
+RUN ln -s /lib/libc.musl-x86_64.so.1 /lib/ld-linux-x86-64.so.2
+
 COPY --from=build /app /app
 
-ENV PORT=80
-EXPOSE 80
 CMD node dist/server/index.js
 
