@@ -11,6 +11,8 @@ export class Client {
 	private peer: RTCPeerConnection;
 	private dc: RTCDataChannel;
 
+	private connState: HTMLElement;
+	private iceState: HTMLElement;
 	private cursorEl: HTMLDivElement;
 
 	public constructor(public host: string) {
@@ -29,9 +31,11 @@ export class Client {
 		});
 		this.peer.addEventListener("iceconnectionstatechange", ev => {
 			console.log("ICE connection state", this.peer.iceConnectionState);
+			document.getElementById("ice-connection-state").innerText = this.peer.iceConnectionState;
 		});
 		this.peer.addEventListener("icegatheringstatechange", ev => {
 			console.log("ICE gathering state", this.peer.iceGatheringState);
+			document.getElementById("ice-gathering-state").innerText = this.peer.iceGatheringState;
 		});
 
 		this.peer.addEventListener('icecandidate', async ev => {
@@ -44,6 +48,7 @@ export class Client {
 		});
 		this.peer.addEventListener('connectionstatechange', ev => {
 			console.log('WebRTC connection state', this.peer.connectionState);
+			document.getElementById("peer-connection-state").innerText = this.peer.connectionState;
 			if (this.peer.connectionState === 'connected') {
 				console.log("WebRTC connected");
 			}
@@ -54,11 +59,14 @@ export class Client {
 			console.log('Received data channel');
 
 			this.dc = ev.channel;
+			document.getElementById("dc-ready-state").innerText = this.dc.readyState;
 			this.dc.addEventListener('open', ev => {
 				console.log('DataChannel open');
+				document.getElementById("dc-ready-state").innerText = this.dc.readyState;
 			});
 			this.dc.addEventListener('close', ev => {
 				console.log('DataChannel close');
+				document.getElementById("dc-ready-state").innerText = this.dc.readyState;
 			});
 			this.dc.addEventListener('message', ev => {
 				console.log('Message', ev.data);
@@ -83,6 +91,7 @@ export class Client {
 		this.isConnected = true;
 
 		console.log("WebSocket connected");
+		document.getElementById("ws-connected").innerText = this.socket.connected.toString();
 	}
 
 	private _onDisconnect() {
