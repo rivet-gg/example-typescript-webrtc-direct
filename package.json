@@ -15,8 +15,8 @@
 		"lint": "eslint client/ server/ shared/",
 		"lint:fix": "eslint --fix client/ server/ shared/"
 	},
-	"author": "",
-	"license": "ISC",
+	"author": "Rivet Gaming, LLC",
+	"license": "MIT",
 	"devDependencies": {
 		"concurrently": "^7.4.0",
 		"dotenv": "^16.0.2",
