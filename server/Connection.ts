@@ -95,7 +95,19 @@ export class Connection {
 
 	private _onNewIceCandidate(candidate: any) {
 		console.log("Received candidate", candidate);
-		this.peer.addIceCandidate(candidate);
+		if (candidate.candidate.startsWith("candidate:")) {
+			this.peer.addIceCandidate(candidate);
+		} else {
+			// This may be caused by an empty candidate string in Firefox
+			// https://developer.mozilla.org/en-US/docs/Web/API/RTCPeerConnection/icecandidate_event#indicating_the_end_of_a_generation_of_candidates
+			//
+			// Relevant Firefox bug:
+			// https://bugzilla.mozilla.org/show_bug.cgi?id=1540614
+			//
+			// Relevant WebKit bug:
+			// https://bugs.chromium.org/p/chromium/issues/detail?id=978582
+			console.log("Received invalid candidate", candidate);
+		}
 	}
 
 	private async _onAnswer(answer: any) {
