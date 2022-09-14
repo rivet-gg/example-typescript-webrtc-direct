@@ -41,10 +41,11 @@ export class Connection {
 
 		// Create peer
 		this.peer = new RTCPeerConnection({
-			  portRange: {
-				  min: PORT_WEBRTC_MIN,
-				  max: PORT_WEBRTC_MAX,
-			  }
+			iceServers: [{urls: 'stun:stun.l.google.com:19302'}],
+			portRange: {
+				min: PORT_WEBRTC_MIN,
+				max: PORT_WEBRTC_MAX,
+			},
 		 });
 		this.peer.addEventListener("iceconnectionstatechange", ev => {
 			console.log("ICE connection state", this.peer.iceConnectionState);

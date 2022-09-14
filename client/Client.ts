@@ -33,7 +33,9 @@ export class Client {
 		console.log("Initiated");
 
 		// Create peer
-		this.peer = new RTCPeerConnection();
+		this.peer = new RTCPeerConnection({
+			iceServers: [{urls: 'stun:stun.l.google.com:19302'}]
+		});
 		this.peer.addEventListener("icecandidateerror", ev => {
 			console.log('ICE error', ev);
 		});
