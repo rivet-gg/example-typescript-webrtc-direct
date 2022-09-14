@@ -1,8 +1,11 @@
+# Need to use Ubuntu base in order for wrtc lib to work.
+
 # === Build ===
-FROM node:16-alpine as build
+FROM node:16 as build
 WORKDIR /app
 
-RUN apk add --no-cache python3 make g++ && npm install -g node-pre-gyp
+RUN npm install -g node-pre-gyp
+RUN apt-get update -y && apt-get install -y build-essential
 
 COPY package.json package-lock.json ./
 RUN npm install
@@ -11,11 +14,10 @@ COPY . .
 RUN npm run build:server
 
 # === Run ===
-FROM node:16-alpine
+FROM node:16
 WORKDIR /app
 
-# See https://dustri.org/b/error-loading-shared-library-ld-linux-x86-64so2-on-alpine-linux.html
-RUN ln -s /lib/libc.musl-x86_64.so.1 /lib/ld-linux-x86-64.so.2
+RUN apt-get update -y && apt-get install -y libasound2
 
 COPY --from=build /app /app
 
