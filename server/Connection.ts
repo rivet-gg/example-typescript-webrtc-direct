@@ -46,6 +46,12 @@ export class Connection {
 				  max: PORT_WEBRTC_MAX,
 			  }
 		 });
+		this.peer.addEventListener("iceconnectionstatechange", ev => {
+			console.log("ICE connection state", this.peer.iceConnectionState);
+		});
+		this.peer.addEventListener("icegatheringstatechange", ev => {
+			console.log("ICE gathering state", this.peer.iceGatheringState);
+		});
 		this.peer.addEventListener('icecandidate', ev => {
 			if (ev.candidate) {
 				console.log('New ICE candidate', ev.candidate);
