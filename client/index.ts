@@ -3,8 +3,8 @@ import * as mm from "@rivet-gg/matchmaker";
 
 window.addEventListener("load", async () => {
 	let mmApi = new mm.MatchmakerService({
-		endpoint: "https://matchmaker.api.rivet-gg.test/v1",
-		token: process.env.RIVET_CLIENT_TOKEN,
+		endpoint: process.env.RIVET_MATCHMAKER_API_URL,
+		token: typeof process !== "undefined" ? process.env.RIVET_CLIENT_TOKEN : null,
 	});
 
 	let res = await mmApi.findLobby({

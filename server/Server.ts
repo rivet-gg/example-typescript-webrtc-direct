@@ -11,7 +11,7 @@ export class Server {
 		this.socketServer.on("connection", this._onConnection.bind(this));
 
 		this.mmApi = new mm.MatchmakerService({
-			endpoint: "https://matchmaker.api.rivet-gg.test/v1",
+			endpoint: process.env.RIVET_MATCHMAKER_API_URL,
 		});
 		this.mmApi.lobbyReady({});
 	}
