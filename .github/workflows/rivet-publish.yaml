@@ -68,7 +68,7 @@ jobs:
       - uses: actions/checkout@v3
 
       - name: Build Site
-        run: npm install -g @mapbox/node-pre-gyp && npm install && npm run build:client:prod
+        run: npm install -g @mapbox/node-pre-gyp && npm install && RIVET_MATCHMAKER_API_URL=https://matchmaker.api.rivet.gg/v1 npm run build:client:prod
 
       - name: Constants
         id: consts
