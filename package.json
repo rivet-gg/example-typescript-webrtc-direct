@@ -35,6 +35,6 @@
 		"@rivet-gg/matchmaker": "^0.0.5",
 		"sdp-transform": "^2.14.1",
 		"socket.io": "^4.5.2",
-		"wrtc": "^0.4.7"
+		"wrtc": "0.4.2"
 	}
 }
