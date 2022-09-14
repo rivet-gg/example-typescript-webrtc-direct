@@ -11,4 +11,3 @@ const socketServer = new SocketServer(PORT_SIGNALING, {
 });
 Server.shared = new Server(socketServer);
 console.log(`Listening on port ${PORT_SIGNALING}`);
-

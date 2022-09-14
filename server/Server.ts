@@ -20,4 +20,3 @@ export class Server {
 		new Connection(this, socket);
 	}
 }
-

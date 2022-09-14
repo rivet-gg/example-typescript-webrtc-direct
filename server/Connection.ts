@@ -1,7 +1,7 @@
 import { Server } from "./Server";
 import { Socket } from "socket.io";
-import { RTCPeerConnection, RTCDataChannel, RTCSessionDescription } from 'wrtc';
-import * as sdpTransform from 'sdp-transform';
+import { RTCPeerConnection, RTCDataChannel, RTCSessionDescription } from "wrtc";
+import * as sdpTransform from "sdp-transform";
 import { PORT_WEBRTC_MIN, PORT_WEBRTC_MAX } from "./env";
 
 export class Connection {
@@ -36,68 +36,73 @@ export class Connection {
 		cb();
 
 		// Finish setting up socket
-		this._socket.on("new-ice-candidate", this._onNewIceCandidate.bind(this));
+		this._socket.on(
+			"new-ice-candidate",
+			this._onNewIceCandidate.bind(this)
+		);
 		this._socket.on("answer", this._onAnswer.bind(this));
 
 		// Create peer
 		this.peer = new RTCPeerConnection({
-			iceServers: [{urls: 'stun:stun.l.google.com:19302'}],
+			iceServers: [{ urls: "stun:stun.l.google.com:19302" }],
 			portRange: {
 				min: PORT_WEBRTC_MIN,
 				max: PORT_WEBRTC_MAX,
 			},
-		 });
-		this.peer.addEventListener("iceconnectionstatechange", ev => {
+		});
+		this.peer.addEventListener("iceconnectionstatechange", (ev) => {
 			console.log("ICE connection state", this.peer.iceConnectionState);
 		});
-		this.peer.addEventListener("icegatheringstatechange", ev => {
+		this.peer.addEventListener("icegatheringstatechange", (ev) => {
 			console.log("ICE gathering state", this.peer.iceGatheringState);
 		});
-		this.peer.addEventListener('icecandidate', ev => {
+		this.peer.addEventListener("icecandidate", (ev) => {
 			if (ev.candidate) {
-				console.log('New ICE candidate', ev.candidate);
-				this._socket.emit('new-ice-candidate', ev.candidate);
+				console.log("New ICE candidate", ev.candidate);
+				this._socket.emit("new-ice-candidate", ev.candidate);
 			} else {
 				console.log("No available ICE candidates");
 			}
 		});
-		this.peer.addEventListener('connectionstatechange', ev => {
-			console.log('New connection state', this.peer.connectionState);
-			if (this.peer.connectionState === 'connected') {
+		this.peer.addEventListener("connectionstatechange", (ev) => {
+			console.log("New connection state", this.peer.connectionState);
+			if (this.peer.connectionState === "connected") {
 				console.log("WebRTC connected");
 			}
 		});
 
 		// Create unreliable data channel for UDP communication
-		this.dc = this.peer.createDataChannel('echo', {
+		this.dc = this.peer.createDataChannel("echo", {
 			ordered: false,
 			maxRetransmits: 0,
 		});
-		this.dc.addEventListener('open', ev => {
-			console.log('DataChannel open');
+		this.dc.addEventListener("open", (ev) => {
+			console.log("DataChannel open");
 		});
-		this.dc.addEventListener('close', ev => {
-			console.log('DataChannel close');
+		this.dc.addEventListener("close", (ev) => {
+			console.log("DataChannel close");
 		});
-		this.dc.addEventListener('message', ev => {
-			console.log('Message', ev.data);
+		this.dc.addEventListener("message", (ev) => {
+			console.log("Message", ev.data);
 
 			this.dc.send(ev.data);
 		});
 
 		// Send offer
-		this.peer.createOffer()
-			.then(async offer => {
-				console.log("Created offer", sdpTransform.parse(offer.sdp));
-				await this.peer.setLocalDescription(offer);
-				this._socket.emit('offer', offer);
-			});
+		this.peer.createOffer().then(async (offer) => {
+			console.log("Created offer", sdpTransform.parse(offer.sdp));
+			await this.peer.setLocalDescription(offer);
+			this._socket.emit("offer", offer);
+		});
 	}
 
 	private _onDisconnect() {
 		console.log("WebSocket disconnected");
 		if (this.peer) this.peer.close();
-		if (this.playerToken) this._server.mmApi.playerDisconnected({ playerToken: this.playerToken });
+		if (this.playerToken)
+			this._server.mmApi.playerDisconnected({
+				playerToken: this.playerToken,
+			});
 	}
 
 	private _onNewIceCandidate(candidate: any) {
@@ -123,4 +128,3 @@ export class Connection {
 		await this.peer.setRemoteDescription(new RTCSessionDescription(answer));
 	}
 }
-

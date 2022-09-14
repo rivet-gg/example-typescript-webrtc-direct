@@ -4,7 +4,10 @@ import * as mm from "@rivet-gg/matchmaker";
 window.addEventListener("load", async () => {
 	let mmApi = new mm.MatchmakerService({
 		endpoint: process.env.RIVET_MATCHMAKER_API_URL,
-		token: typeof process !== "undefined" ? process.env.RIVET_CLIENT_TOKEN : null,
+		token:
+			typeof process !== "undefined"
+				? process.env.RIVET_CLIENT_TOKEN
+				: null,
 	});
 
 	let res = await mmApi.findLobby({
@@ -14,4 +17,3 @@ window.addEventListener("load", async () => {
 
 	new Client(signalingPort.host, res.lobby.player.token);
 });
-
