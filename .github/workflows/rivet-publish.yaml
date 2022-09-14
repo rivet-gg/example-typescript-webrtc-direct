@@ -48,7 +48,6 @@ jobs:
       - name: Push Build
         id: push_build
         run: |
-          export RIVET_CLOUD_API_URL=https://cloud.api.staging.gameinc.io/v1
           BUILD_ID="$(rivet --cloud-token "${{ secrets.RIVET_CLOUD_TOKEN }}" build push --tag "${{ steps.consts.outputs.build_tag }}" --name "${{ steps.consts.outputs.git_branch }} (${{ steps.consts.outputs.git_sha_short }})" --format json | jq -r '.build_id')"
           echo "::set-output name=build_id::$BUILD_ID"
 
@@ -81,7 +80,6 @@ jobs:
       - name: Push Site
         id: push_site
         run: |
-          export RIVET_CLOUD_API_URL=https://cloud.api.staging.gameinc.io/v1
           SITE_ID="$(rivet --cloud-token "${{ secrets.RIVET_CLOUD_TOKEN }}" site push --path 'dist/' --name "${{ steps.consts.outputs.git_branch }} (${{ steps.consts.outputs.git_sha_short }})" --format json | jq -r '.site_id')"
           echo "::set-output name=site_id::$SITE_ID"
 
@@ -106,21 +104,18 @@ jobs:
       - name: Get Game
         id: get_game
         run: |
-          export RIVET_CLOUD_API_URL=https://cloud.api.staging.gameinc.io/v1
           GAME_ID="$(rivet --cloud-token "${{ secrets.RIVET_CLOUD_TOKEN }}" game get --format json | jq -r '.game_id')"
           echo "::set-output name=game_id::$GAME_ID"
 
       - name: Create Version
         id: create_version
         run: |
-          export RIVET_CLOUD_API_URL=https://cloud.api.staging.gameinc.io/v1
           VERSION_ID="$(rivet --cloud-token "${{ secrets.RIVET_CLOUD_TOKEN }}" version create --display-name "${{ steps.consts.outputs.git_branch }} (${{ steps.consts.outputs.git_sha_short }})" -o "cdn.site=\"${{ needs.push_site.outputs.site_id }}\"" -o "matchmaker.docker.build=\"${{ needs.push_build.outputs.build_id }}\"" --format json | jq -r '.version_id')"
           echo "::set-output name=version_id::$VERSION_ID"
 
       - name: Create Namespace
         id: create_namespace
         run: |
-          export RIVET_CLOUD_API_URL=https://cloud.api.staging.gameinc.io/v1
           NS_DISPLAY_NAME="${{ steps.consts.outputs.git_branch }}"
           NS_NAME_ID="$(sed -E 's/[^[:alnum:]]+/-/g' <<< "$NS_DISPLAY_NAME")"
           NAMESPACE_ID="$(rivet --cloud-token "${{ secrets.RIVET_CLOUD_TOKEN }}" namespace create --name-id "$NS_NAME_ID" --display-name "$NS_DISPLAY_NAME"  --version "${{ steps.create_version.outputs.version_id }}" --format json | jq -r '.namespace_id')"
@@ -128,13 +123,10 @@ jobs:
 
       - name: Set Version
         run: |
-          export RIVET_CLOUD_API_URL=https://cloud.api.staging.gameinc.io/v1
           rivet --cloud-token "${{ secrets.RIVET_CLOUD_TOKEN }}" namespace set-version --namespace "${{ steps.create_namespace.outputs.namespace_id }}" --version "${{ steps.create_version.outputs.version_id }}" --format json
 
       - name: Dashboards
         run: |
-          export RIVET_CLOUD_API_URL=https://cloud.api.staging.gameinc.io/v1
-
           echo
           echo "Game:"
           rivet --cloud-token "${{ secrets.RIVET_CLOUD_TOKEN }}" game dashboard
