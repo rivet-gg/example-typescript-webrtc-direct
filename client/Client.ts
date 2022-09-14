@@ -87,7 +87,7 @@ export class Client {
 			this.dc.addEventListener("message", (ev) => {
 				console.log("Message", ev.data);
 
-				let { x, y } = JSON.parse(ev.data);
+				const { x, y } = JSON.parse(ev.data);
 				this.cursorEl.style.left = `${x}px`;
 				this.cursorEl.style.top = `${y}px`;
 			});
@@ -128,15 +128,15 @@ export class Client {
 	}
 
 	private async _onOffer(offer: any) {
-		let offerSdp = sdpTransform.parse(offer.sdp);
+		const offerSdp = sdpTransform.parse(offer.sdp);
 		console.log("Received offer", offerSdp);
 		document.getElementById("offer-sdp").innerText =
 			JSON.stringify(offerSdp);
 
 		await this.peer.setRemoteDescription(new RTCSessionDescription(offer));
 
-		let answer = await this.peer.createAnswer();
-		let answerSdp = sdpTransform.parse(answer.sdp);
+		const answer = await this.peer.createAnswer();
+		const answerSdp = sdpTransform.parse(answer.sdp);
 		console.log("Created answer", answerSdp);
 		document.getElementById("answer-sdp").innerText =
 			JSON.stringify(answerSdp);
