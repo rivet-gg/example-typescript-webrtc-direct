@@ -115,14 +115,16 @@ export class Client {
 	}
 
 	private async _onOffer(offer: any) {
-		let sdp = sdpTransform.parse(offer.sdp);
-		console.log("Received offer", sdp);
-		document.getElementById("offer-sdp").innerText = JSON.stringify(sdp);
+		let offerSdp = sdpTransform.parse(offer.sdp);
+		console.log("Received offer", offerSdp);
+		document.getElementById("offer-sdp").innerText = JSON.stringify(offerSdp);
 
 		await this.peer.setRemoteDescription(new RTCSessionDescription(offer));
 
 		let answer = await this.peer.createAnswer();
-		console.log("Created answer", sdpTransform.parse(answer.sdp));
+		let answerSdp = sdpTransform.parse(answer.sdp);
+		console.log("Created answer", answerSdp);
+		document.getElementById("answer-sdp").innerText = JSON.stringify(answerSdp);
 		await this.peer.setLocalDescription(answer);
 		this.socket.emit('answer', answer);
 	}
