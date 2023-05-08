@@ -27,6 +27,8 @@ export class Client {
 	private cursorWebRTCEl: HTMLDivElement;
 	private statsWebRTCEl: HTMLSpanElement;
 
+	private statsDiffEl: HTMLSpanElement;
+
 	private pingsWebSocket: number[] = [];
 	private pingsWebRTC: number[] = [];
 
@@ -107,7 +109,7 @@ export class Client {
 				this.cursorWebRTCEl.style.top = `${y}px`;
 				this.pingsWebRTC.unshift(Date.now() - now);
 				this.pingsWebRTC.length = Math.min(this.pingsWebRTC.length, PING_SAMPLE_COUNT);
-				this.statsWebRTCEl.innerText = this._generatePingStats(this.pingsWebRTC);
+				this._updatePingStats();
 			});
 		});
 
@@ -124,6 +126,10 @@ export class Client {
 		) as HTMLDivElement;
 		this.statsWebRTCEl = document.getElementById(
 			"stats-webrtc"
+		) as HTMLSpanElement;
+		
+		this.statsDiffEl = document.getElementById(
+			"stats-diff"
 		) as HTMLSpanElement;
 
 		document
@@ -192,7 +198,7 @@ export class Client {
 					this.cursorWebSocketEl.style.top = `${data.y}px`;
 					this.pingsWebSocket.unshift(Date.now() - data.now);
 					this.pingsWebSocket.length = Math.min(this.pingsWebSocket.length, PING_SAMPLE_COUNT);
-					this.statsWebSocketEl.innerText = this._generatePingStats(this.pingsWebSocket);
+					this._updatePingStats();
 				}
 			);
 		}
@@ -205,14 +211,33 @@ export class Client {
 		}
 	}
 
-	private _generatePingStats(samples: number[]): string {
+	private _updatePingStats() {
+		let ws = this._generatePingStats(this.pingsWebSocket);
+		let webrtc = this._generatePingStats(this.pingsWebRTC);
+
+		this.statsWebSocketEl.innerText = this._genStatsText(ws);
+		this.statsWebRTCEl.innerText = this._genStatsText(webrtc);
+		this.statsDiffEl.innerText = this._genStatsText({
+			min: webrtc.min - ws.min,
+			max: webrtc.max - ws.max,
+			avg: webrtc.avg - ws.avg,
+			p95: webrtc.p95 - ws.p95,
+			p99: webrtc.p99 - ws.p99,
+		});
+	}
+
+	private _generatePingStats(samples: number[]): any {
 		if (samples.length == 0) samples = [0];
-		console.log('samples', samples);
-		let min = ss.min(samples).toFixed(0);
-		let max = ss.max(samples).toFixed(0);
-		let avg = ss.average(samples).toFixed(1);
-		let p95 = ss.quantile(samples, 0.95).toFixed(1);
-		let p99 = ss.quantile(samples, 0.99).toFixed(1);
-		return `[min=${min}ms] [max=${max}ms] [avg=${avg}ms] [p95=${p95}ms] [p99=${p99}ms]`;
+		return {
+			min: ss.min(samples),
+			max: ss.max(samples),
+			avg: ss.average(samples),
+			p95: ss.quantile(samples, 0.95),
+			p99: ss.quantile(samples, 0.99),
+		}
+	}
+
+	private _genStatsText({ min, max, avg, p95, p99 }): string {
+		return `[min=${min.toFixed(0)}ms] [max=${max.toFixed(0)}ms] [avg=${avg.toFixed(1)}ms] [p95=${p95.toFixed(1)}ms] [p99=${p99.toFixed(1)}ms]`;
 	}
 }
