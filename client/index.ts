@@ -10,6 +10,7 @@ window.addEventListener("load", async () => {
 		gameModes: ["default"],
 	});
 	const signalingPort = res.lobby.ports["signaling"];
+	const turnPort = res.lobby.ports["turn"];
 
-	new Client(signalingPort.host, res.lobby.player.token);
+	new Client(signalingPort.host, turnPort.host, res.lobby.player.token);
 });

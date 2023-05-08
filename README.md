@@ -7,6 +7,7 @@ Leverages the [`wrtc`](https://www.npmjs.com/package/wrtc) NodeJS library to run
 ## Running
 
 ```
+$ docker run  -it -p 3478:3478 -p 3478:3478/udp -p 5349:5349 -p 5349:5349/udp -p 49152:49152/udp coturn/coturn --min-port 49152 --max-port 49152 --user=user:pass
 $ npm install -g node-pre-gyp
 $ npm install
 $ npm start

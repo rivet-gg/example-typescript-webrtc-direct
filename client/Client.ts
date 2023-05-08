@@ -32,12 +32,12 @@ export class Client {
 	private pingsWebSocket: number[] = [];
 	private pingsWebRTC: number[] = [];
 
-	public constructor(public host: string, private playerToken: string) {
-		console.log("Connecting", host, playerToken);
+	public constructor(public signalingHost: string, public turnHost: string, private playerToken: string) {
+		console.log("Connecting", signalingHost, playerToken);
 
 		this.name = `peer-${Math.floor(Math.random() * 100000)}`;
 
-		this.socket = io(host);
+		this.socket = io(signalingHost);
 		this.socket.on("connect", this._onConnect.bind(this));
 		this.socket.on("disconnect", this._onDisconnect.bind(this));
 		this.socket.on("new-ice-candidate", this._onNewIceCandidate.bind(this));
@@ -51,7 +51,9 @@ export class Client {
 
 		// Create peer
 		this.peer = new RTCPeerConnection({
-			iceServers: [{ urls: "stun:stun.l.google.com:19302" }],
+			// iceServers: [{ urls: "stun:stun.l.google.com:19302" }],
+			// iceServers: [{ urls: "turn:127.0.0.1:3478", username: "user", credential: "pass" }],
+			iceServers: [{ urls: `turn:${this.turnHost}`, username: "user", credential: "pass" }],
 		});
 		this.peer.addEventListener("icecandidateerror", (ev) => {
 			console.log("ICE error", ev);

@@ -47,7 +47,8 @@ export class Connection {
 
 		// Create peer
 		this.peer = new RTCPeerConnection({
-			iceServers: [{ urls: "stun:stun.l.google.com:19302" }],
+			// iceServers: [{ urls: "stun:stun.l.google.com:19302" }],
+			iceServers: [{ urls: "turn:127.0.0.1:3478", username: "user", credential: "pass" }],
 			portRange: {
 				min: PORT_WEBRTC_MIN,
 				max: PORT_WEBRTC_MAX,
