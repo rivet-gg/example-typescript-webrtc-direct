@@ -12,6 +12,7 @@ export class Client {
 
 	private mouseX: number = 0;
 	private mouseY: number = 0;
+	private lastPing: number = Date.now();
 
 	private name: string;
 	private peer: RTCPeerConnection;
@@ -176,11 +177,16 @@ export class Client {
 	}
 
 	private _sendPing() {
+		// Ensure that it's been at least 1ms since the last ping
+		let now = Date.now();
+		if (now - this.lastPing <= 1) return;
+		this.lastPing = now;
+
 		// Send over WebSocket
 		if (this.socket) {
 			this.socket.emit(
 				"echo",
-				{ x: this.mouseX, y: this.mouseY, now: Date.now() },
+				{ x: this.mouseX, y: this.mouseY, now },
 				(data: any) => {
 					this.cursorWebSocketEl.style.left = `${data.x}px`;
 					this.cursorWebSocketEl.style.top = `${data.y}px`;
@@ -194,7 +200,7 @@ export class Client {
 		// Send over WebRTC
 		if (this.dc) {
 			this.dc.send(
-				JSON.stringify({ x: this.mouseX, y: this.mouseY, now: Date.now() })
+				JSON.stringify({ x: this.mouseX, y: this.mouseY, now })
 			);
 		}
 	}
