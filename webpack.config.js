@@ -11,6 +11,7 @@ module.exports = (env) => {
 		},
 		output: {
 			path: path.join(__dirname, "dist"),
+			filename: "[name].[contenthash].js"
 		},
 		mode: "development",
 		context: path.join(__dirname, "client"),
