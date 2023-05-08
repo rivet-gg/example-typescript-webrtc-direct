@@ -1,4 +1,6 @@
 [cdn]
+	build_command = "npm install && npm run build:client:prod"
+	build_output = "./dist/"
 
 [matchmaker]
 	tier = "basic-1d4"
@@ -9,10 +11,11 @@
 	lnd-fra = {}
 
 [matchmaker.docker]
+	dockerfile = "Dockerfile"
 	network_mode = "host"
 	ports.signaling = { protocol = "https", port = 80, dev_port = 3000 }
 	ports.webrtc = { protocol = "udp", port_range = { min = 26000, max = 31999 } }
 
 [matchmaker.game_modes]
-  default = {}
+	default = {}
 
