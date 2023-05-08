@@ -5,7 +5,7 @@ pkgs.mkShell {
 		nodejs-16_x
 		gcc
 		openssl
-		python
+		python3
 	];
 }
 

@@ -24,7 +24,7 @@ export class Connection {
 
 		// Validate player
 		try {
-			await this._server.mmApi.playerConnected({ playerToken });
+			await Server.rivet.matchmaker.players.connected({ playerToken });
 			console.log("Matchmaker player connected");
 		} catch (err) {
 			console.warn("Player failed to connect", err);
@@ -41,6 +41,9 @@ export class Connection {
 			this._onNewIceCandidate.bind(this)
 		);
 		this._socket.on("answer", this._onAnswer.bind(this));
+
+		// Create echo over WebSocket to compare it WebRTC
+		this._socket.on("echo", (data, cb) => cb(data));
 
 		// Create peer
 		this.peer = new RTCPeerConnection({
@@ -72,6 +75,8 @@ export class Connection {
 		});
 
 		// Create unreliable data channel for UDP communication
+		//
+		// This will echo all messages from the client
 		this.dc = this.peer.createDataChannel("echo", {
 			ordered: false,
 			maxRetransmits: 0,
@@ -100,7 +105,7 @@ export class Connection {
 		console.log("WebSocket disconnected");
 		if (this.peer) this.peer.close();
 		if (this.playerToken)
-			this._server.mmApi.playerDisconnected({
+			Server.rivet.matchmaker.players.disconnected({
 				playerToken: this.playerToken,
 			});
 	}

@@ -1,15 +1,21 @@
 [cdn]
+	build_command = "npm install && npm run build:client:prod"
+	build_output = "./dist/"
 
 [matchmaker]
-	[matchmaker.game_modes.default]
-		tier = "basic-1d4"
-		max_players = 32
-		idle_lobbies = { min = 1, max = 1 }
+	tier = "basic-1d4"
+	max_players = 32
 
-		[matchmaker.game_modes.default.docker]
-			network_mode = "host"
+[matchmaker.regions]
+	lnd-sfo = {}
+	lnd-fra = {}
 
-			[matchmaker.game_modes.default.docker.ports]
-				signaling = { proto = "https", target = 80 }
-				webrtc = { proto = "udp", range = { min = 26000, max = 31999 } }
+[matchmaker.docker]
+	dockerfile = "Dockerfile"
+	network_mode = "host"
+	ports.signaling = { protocol = "https", port = 80, dev_port = 3000 }
+	ports.webrtc = { protocol = "udp", proxy = "none", port_range = { min = 26000, max = 31999 } }
+
+[matchmaker.game_modes]
+	default = {}
 
