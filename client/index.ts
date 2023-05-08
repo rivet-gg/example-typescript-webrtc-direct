@@ -3,7 +3,7 @@ import { RivetClient } from "@rivet-gg/api";
 
 window.addEventListener("load", async () => {
 	const RIVET = new RivetClient({
-		token: typeof process !== "undefined" ? process.env.RIVET_TOKEN : null,
+		token: process.env.RIVET_TOKEN,
 	});
 
 	const res = await RIVET.matchmaker.lobbies.find({
