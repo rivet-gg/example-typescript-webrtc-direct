@@ -42,7 +42,28 @@
 				text-align: center;
 			}
 
-			.codeblock {
+			#legend {
+				display: flex;
+				flex-direction: column;
+				justify-content: center;
+				gap: 8px;
+				margin-bottom: 12px;
+			}
+
+			.legend-item {
+				display: flex;
+				flex-direction: row;
+				justify-content: center;
+				align-items: center;
+			}
+
+			.legend-color {
+				width: 16px;
+				height: 16px;
+				border-radius: 50%;
+			}
+
+			.codeblock, .legend-item {
 				font-family: monospace;
 			}
 		</style>
@@ -52,9 +73,20 @@
 			<div>
 				<h1>WebRTC Direct DataChannel Demo</h1>
 				<p>
-					The gray circle reflects the cursor position echoed from the
-					server over an RTCDataChannel.
+					The circles reflects the cursor position echoed from the server over an <span style="color: green">RTCDataChannel</span> and <span style="color: red">WebSocket</span>.
 				</p>
+
+				<div id="legend">
+					<div class="legend-item">
+						<div class="legend-color" style="background: green"></div>
+						<div>&nbsp;=&nbsp;WebRTC&nbsp<span id="stats-webrtc">[connecting]</span></div>
+					</div>
+					<div class="legend-item">
+						<div class="legend-color" style="background: red"></div>
+						<div>&nbsp;=&nbsp;WebSocket&nbsp<span id="stats-websocket">[connecting]</span></div>
+					</div>
+				</div>
+
 				<div class="codeblock">
 					<div>
 						WebSocket.connected:
@@ -85,6 +117,7 @@
 				</div>
 			</div>
 		</div>
+
 		<div id="canvas">
 			<div id="cursor-websocket" class="cursor"></div>
 			<div id="cursor-webrtc" class="cursor"></div>

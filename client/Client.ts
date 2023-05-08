@@ -1,5 +1,8 @@
 import { io, Socket } from "socket.io-client";
 import * as sdpTransform from "sdp-transform";
+import * as ss from "simple-statistics";
+
+const PING_SAMPLE_COUNT: number = 128;
 
 export class Client {
 	public socket: Socket;
@@ -7,14 +10,24 @@ export class Client {
 	public isDisconnected = false;
 	public isConnected = false;
 
+	private mouseX: number = 0;
+	private mouseY: number = 0;
+
 	private name: string;
 	private peer: RTCPeerConnection;
 	private dc: RTCDataChannel;
 
 	private connState: HTMLElement;
 	private iceState: HTMLElement;
+
 	private cursorWebSocketEl: HTMLDivElement;
+	private statsWebSocketEl: HTMLSpanElement;
+
 	private cursorWebRTCEl: HTMLDivElement;
+	private statsWebRTCEl: HTMLSpanElement;
+
+	private pingsWebSocket: number[] = [];
+	private pingsWebRTC: number[] = [];
 
 	public constructor(public host: string, private playerToken: string) {
 		console.log("Connecting", host, playerToken);
@@ -88,9 +101,12 @@ export class Client {
 			this.dc.addEventListener("message", (ev) => {
 				console.log("Message", ev.data);
 
-				const { x, y } = JSON.parse(ev.data);
+				const { x, y, now } = JSON.parse(ev.data);
 				this.cursorWebRTCEl.style.left = `${x}px`;
 				this.cursorWebRTCEl.style.top = `${y}px`;
+				this.pingsWebRTC.unshift(Date.now() - now);
+				this.pingsWebRTC.length = Math.min(this.pingsWebRTC.length, PING_SAMPLE_COUNT);
+				this.statsWebRTCEl.innerText = this._generatePingStats(this.pingsWebRTC);
 			});
 		});
 
@@ -98,31 +114,27 @@ export class Client {
 		this.cursorWebSocketEl = document.getElementById(
 			"cursor-websocket"
 		) as HTMLDivElement;
+		this.statsWebSocketEl = document.getElementById(
+			"stats-websocket"
+		) as HTMLSpanElement;
+
 		this.cursorWebRTCEl = document.getElementById(
 			"cursor-webrtc"
 		) as HTMLDivElement;
+		this.statsWebRTCEl = document.getElementById(
+			"stats-webrtc"
+		) as HTMLSpanElement;
+
 		document
 			.getElementById("canvas")
 			.addEventListener("mousemove", (ev) => {
-				// Send over WebSocket
-				if (this.socket) {
-					this.socket.emit(
-						"echo",
-						{ x: ev.clientX, y: ev.clientY },
-						(data) => {
-							this.cursorWebSocketEl.style.left = `${data.x}px`;
-							this.cursorWebSocketEl.style.top = `${data.y}px`;
-						}
-					);
-				}
-
-				// Send over WebRTC
-				if (this.dc) {
-					this.dc.send(
-						JSON.stringify({ x: ev.clientX, y: ev.clientY })
-					);
-				}
+				this.mouseX = ev.clientX;
+				this.mouseY = ev.clientY;
+				this._sendPing();
 			});
+
+		// Send ping @ 10 pps
+		setInterval(() => this._sendPing(), 100);
 	}
 
 	private _onConnect() {
@@ -161,5 +173,40 @@ export class Client {
 			JSON.stringify(answerSdp);
 		await this.peer.setLocalDescription(answer);
 		this.socket.emit("answer", answer);
+	}
+
+	private _sendPing() {
+		// Send over WebSocket
+		if (this.socket) {
+			this.socket.emit(
+				"echo",
+				{ x: this.mouseX, y: this.mouseY, now: Date.now() },
+				(data: any) => {
+					this.cursorWebSocketEl.style.left = `${data.x}px`;
+					this.cursorWebSocketEl.style.top = `${data.y}px`;
+					this.pingsWebSocket.unshift(Date.now() - data.now);
+					this.pingsWebSocket.length = Math.min(this.pingsWebSocket.length, PING_SAMPLE_COUNT);
+					this.statsWebSocketEl.innerText = this._generatePingStats(this.pingsWebSocket);
+				}
+			);
+		}
+
+		// Send over WebRTC
+		if (this.dc) {
+			this.dc.send(
+				JSON.stringify({ x: this.mouseX, y: this.mouseY, now: Date.now() })
+			);
+		}
+	}
+
+	private _generatePingStats(samples: number[]): string {
+		if (samples.length == 0) samples = [0];
+		console.log('samples', samples);
+		let min = ss.min(samples).toFixed(0);
+		let max = ss.max(samples).toFixed(0);
+		let avg = ss.average(samples).toFixed(1);
+		let p95 = ss.quantile(samples, 0.95).toFixed(1);
+		let p99 = ss.quantile(samples, 0.99).toFixed(1);
+		return `[min=${min}ms] [max=${max}ms] [avg=${avg}ms] [p95=${p95}ms] [p99=${p99}ms]`;
 	}
 }
