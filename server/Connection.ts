@@ -42,6 +42,9 @@ export class Connection {
 		);
 		this._socket.on("answer", this._onAnswer.bind(this));
 
+		// Create echo over WebSocket to compare it WebRTC
+		this._socket.on("echo", (data, cb) => cb(data));
+
 		// Create peer
 		this.peer = new RTCPeerConnection({
 			iceServers: [{ urls: "stun:stun.l.google.com:19302" }],
@@ -72,6 +75,8 @@ export class Connection {
 		});
 
 		// Create unreliable data channel for UDP communication
+		//
+		// This will echo all messages from the client
 		this.dc = this.peer.createDataChannel("echo", {
 			ordered: false,
 			maxRetransmits: 0,

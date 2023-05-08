@@ -13,7 +13,8 @@ export class Client {
 
 	private connState: HTMLElement;
 	private iceState: HTMLElement;
-	private cursorEl: HTMLDivElement;
+	private cursorWebSocketEl: HTMLDivElement;
+	private cursorWebRTCEl: HTMLDivElement;
 
 	public constructor(public host: string, private playerToken: string) {
 		console.log("Connecting", host, playerToken);
@@ -88,16 +89,30 @@ export class Client {
 				console.log("Message", ev.data);
 
 				const { x, y } = JSON.parse(ev.data);
-				this.cursorEl.style.left = `${x}px`;
-				this.cursorEl.style.top = `${y}px`;
+				this.cursorWebRTCEl.style.left = `${x}px`;
+				this.cursorWebRTCEl.style.top = `${y}px`;
 			});
 		});
 
 		// Listen for mouse move events
-		this.cursorEl = document.getElementById("cursor") as HTMLDivElement;
+		this.cursorWebSocketEl = document.getElementById("cursor-websocket") as HTMLDivElement;
+		this.cursorWebRTCEl = document.getElementById("cursor-webrtc") as HTMLDivElement;
 		document
 			.getElementById("canvas")
 			.addEventListener("mousemove", (ev) => {
+				// Send over WebSocket
+				if (this.socket) {
+					this.socket.emit(
+						"echo",
+						{ x: ev.clientX, y: ev.clientY },
+						data => {
+							this.cursorWebSocketEl.style.left = `${data.x}px`;
+							this.cursorWebSocketEl.style.top = `${data.y}px`;
+						}
+					);
+				}
+
+				// Send over WebRTC
 				if (this.dc) {
 					this.dc.send(
 						JSON.stringify({ x: ev.clientX, y: ev.clientY })
