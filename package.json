@@ -6,7 +6,7 @@
 		"start": "concurrently --kill-others \"npm:start:server\" \"npm:watch:client\"",
 		"start:server": "kill-port -s 5000 && ts-node -r dotenv/config server/index.ts",
 		"watch": "npm install && concurrently --kill-others \"npm:watch:server\" \"npm:watch:client\"",
-		"watch:server": "kill-port -s 5000 && nodemon -r dotenv/config --delay 1 --watch server --ext ts --exec ts-node server/index.ts",
+		"watch:server": "kill-port -s 5050 && nodemon -r dotenv/config --delay 1 --watch server --ext ts --exec ts-node server/index.ts",
 		"watch:client": "kill-port -s 8080 && webpack serve --config webpack.dev.config.js --no-stats",
 		"build:client": "webpack --config webpack.dev.config.js",
 		"build:client:prod": "webpack --config webpack.prod.config.js",
@@ -36,7 +36,7 @@
 		"webpack-dev-server": "^4.11.0"
 	},
 	"dependencies": {
-		"@rivet-gg/matchmaker": "^0.0.5",
+		"@rivet-gg/api": "^0.0.1-rc19",
 		"sdp-transform": "^2.14.1",
 		"socket.io": "^4.5.2",
 		"wrtc": "^0.4.7"

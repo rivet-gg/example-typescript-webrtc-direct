@@ -10,7 +10,7 @@
 
 [matchmaker.docker]
 	network_mode = "host"
-	ports.signaling = { protocol = "https", port = 80 }
+	ports.signaling = { protocol = "https", port = 80, dev_port = 3000 }
 	ports.webrtc = { protocol = "udp", port_range = { min = 26000, max = 31999 } }
 
 [matchmaker.game_modes]

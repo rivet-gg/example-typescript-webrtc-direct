@@ -24,7 +24,7 @@ export class Connection {
 
 		// Validate player
 		try {
-			await this._server.mmApi.playerConnected({ playerToken });
+			await Server.rivet.matchmaker.players.connected({ playerToken });
 			console.log("Matchmaker player connected");
 		} catch (err) {
 			console.warn("Player failed to connect", err);
@@ -105,7 +105,7 @@ export class Connection {
 		console.log("WebSocket disconnected");
 		if (this.peer) this.peer.close();
 		if (this.playerToken)
-			this._server.mmApi.playerDisconnected({
+			Server.rivet.matchmaker.players.disconnected({
 				playerToken: this.playerToken,
 			});
 	}
