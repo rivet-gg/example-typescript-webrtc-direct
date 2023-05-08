@@ -95,8 +95,12 @@ export class Client {
 		});
 
 		// Listen for mouse move events
-		this.cursorWebSocketEl = document.getElementById("cursor-websocket") as HTMLDivElement;
-		this.cursorWebRTCEl = document.getElementById("cursor-webrtc") as HTMLDivElement;
+		this.cursorWebSocketEl = document.getElementById(
+			"cursor-websocket"
+		) as HTMLDivElement;
+		this.cursorWebRTCEl = document.getElementById(
+			"cursor-webrtc"
+		) as HTMLDivElement;
 		document
 			.getElementById("canvas")
 			.addEventListener("mousemove", (ev) => {
@@ -105,7 +109,7 @@ export class Client {
 					this.socket.emit(
 						"echo",
 						{ x: ev.clientX, y: ev.clientY },
-						data => {
+						(data) => {
 							this.cursorWebSocketEl.style.left = `${data.x}px`;
 							this.cursorWebSocketEl.style.top = `${data.y}px`;
 						}

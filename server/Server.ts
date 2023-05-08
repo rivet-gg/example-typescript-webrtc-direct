@@ -2,7 +2,6 @@ import { Server as SocketServer, Socket } from "socket.io";
 import { Connection } from "./Connection";
 import { RivetClient } from "@rivet-gg/api";
 
-
 export class Server {
 	public static shared: Server;
 
