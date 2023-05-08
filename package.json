@@ -11,6 +11,7 @@
 		"build:client": "webpack",
 		"build:client:prod": "webpack --env production",
 		"build:server": "tsc --project tsconfig.json",
+		"coturn": "coturn --listening-port=$PORT_turn --min-port 49152 --max-port 49152 --user=user:pass"
 		"format": "prettier --write client/ server/",
 		"lint": "eslint client/ server/",
 		"lint:fix": "eslint --fix client/ server/"

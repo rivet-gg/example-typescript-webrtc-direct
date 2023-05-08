@@ -1,7 +1,7 @@
 # Need to use Ubuntu base in order for wrtc lib to work.
 
 # === Build ===
-FROM node:16 as build
+FROM node:18 as build
 WORKDIR /app
 
 RUN npm install -g node-pre-gyp
@@ -14,10 +14,11 @@ COPY . .
 RUN npm run build:server
 
 # === Run ===
-FROM node:16
+FROM node:18
 WORKDIR /app
 
-RUN apt-get update -y && apt-get install -y libasound2
+RUN apt-get update -y \
+	&& apt-get install -y libasound2 coturn
 
 COPY --from=build /app /app
 
