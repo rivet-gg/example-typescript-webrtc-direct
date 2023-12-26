@@ -1,5 +1,7 @@
 # TypeScript WebRTC Direct Example
 
+**This repo has moved [here](https://github.com/rivet-gg/examples)!**
+
 Demonstrates low latency UDP workload using a direct `RTCDataChannel` between the client and the server.
 
 Leverages the [`wrtc`](https://www.npmjs.com/package/wrtc) NodeJS library to run WebRTC on the server.
